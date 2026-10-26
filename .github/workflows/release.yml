@@ -1,0 +1,29 @@
+name: Windows release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Verify version
+        shell: pwsh
+        run: |
+          $version = node -p "require('./package.json').version"
+          if ("v$version" -ne $env:GITHUB_REF_NAME) { throw 'Tag does not match app version' }
+      - run: npm test
+      - run: npm run package:installer
+      - name: Upload draft release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create $env:GITHUB_REF_NAME --draft --verify-tag --title "청년부 주보 $env:GITHUB_REF_NAME" --generate-notes release/YouthBulletin-Setup-*.exe release/YouthBulletin-Setup-*.exe.blockmap release/latest.yml

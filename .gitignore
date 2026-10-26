@@ -1,0 +1,13 @@
+node_modules/
+dist/
+release/
+data/
+backups/
+history/
+draft.json
+portable.json
+.env*
+*.log
+assets/ValidatePpt.exe
+*백업*.json
+*현재 자료*
